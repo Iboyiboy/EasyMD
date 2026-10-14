@@ -1,0 +1,71 @@
+[package]
+name = "easymd"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "EasyMD - 超轻量化的本地 Markdown 知识库阅读与管理工具"
+authors = ["EasyMD"]
+license = "MIT"
+default-run = "easymd"
+
+[[bin]]
+name = "easymd"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.36", default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "wayland",
+    "x11",
+] }
+egui = "0.36"
+egui_extras = { version = "0.36", default-features = false, features = ["image", "file"] }
+# 使用本地补丁副本：表格会在阅读栏宽内自动换行（见 vendor/egui_commonmark/PATCHES.md）。
+# 刻意不启用 better_syntax_highlighting：那会引入 syntect 与整套语法/主题数据，
+# 代码高亮改用 egui_extras 内置的轻量实现，配色还能直接跟随主题。
+egui_commonmark = { path = "vendor/egui_commonmark", features = ["load-images"] }
+pulldown-cmark = { version = "0.13", default-features = false }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+notify = "8"
+image = { version = "0.25", default-features = false, features = [
+    "png",
+    "jpeg",
+    "gif",
+    "webp",
+    "bmp",
+    "ico",
+] }
+fontdb = "0.23"
+# 字体文件按需分页映射：中文字体动辄 20MB，映射后不占进程私有内存、可被系统回收
+memmap2 = "0.9"
+encoding_rs = "0.8"
+
+# 「打开文件夹 / 打开文件」对话框的后端按平台分开声明。
+# rfd 不允许同时启用 gtk3 与 xdg-portal，所以不能只写一个通用依赖再叠加 target 段
+# （两个条目的特性会被合并，构建脚本会直接报错）。
+# - Windows / macOS：默认后端；
+# - Linux：GTK3 后端 —— XFCE（Xubuntu + Thunar）这类环境不保证在跑 xdg-desktop-portal，
+#   走 portal 时点按钮会毫无反应；GTK3 只要系统装了 GTK 就能弹对话框（需 libgtk-3-dev）。
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+rfd = "0.17"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rfd = { version = "0.17", default-features = false, features = ["gtk3"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+incremental = false
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 2

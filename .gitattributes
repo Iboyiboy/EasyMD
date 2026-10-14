@@ -1,0 +1,5 @@
+# 换行符：仓库开启了 core.autocrlf，默认会把文本按平台转换。
+# 但 shell 脚本在 Linux 上必须保持 LF（带 \r 会报 bad interpreter），
+# Windows 的 .cmd 则要 CRLF。
+*.sh text eol=lf
+*.cmd text eol=crlf

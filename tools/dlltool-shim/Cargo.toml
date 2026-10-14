@@ -1,0 +1,15 @@
+[package]
+name = "easymd-dlltool-shim"
+version = "1.0.0"
+edition = "2021"
+description = "为缺少 MinGW binutils 的 Windows 环境提供 dlltool 替代实现（调用工具链自带 lld-link）"
+publish = false
+
+[[bin]]
+name = "dlltool"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 2
+strip = true
+panic = "abort"

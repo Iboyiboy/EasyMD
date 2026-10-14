@@ -1,0 +1,8 @@
+# 说明：Windows 下使用 Rust 官方 GNU 工具链时，无需手工指定链接器。
+# rustc 默认启用 link-self-contained，会直接使用工具链自带的 mingw 链接器与 dlltool，
+# 因此本机不需要额外安装 MinGW-w64。
+# （如果强行指定 linker = "rust-lld"，rustc 会因为缺少 --out-implib 而回退调用 dlltool，
+#   反而导致 “dlltool program not found” 报错。）
+
+[net]
+git-fetch-with-cli = true

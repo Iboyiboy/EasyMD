@@ -1,0 +1,4 @@
+/target
+/tools/dlltool-shim/target
+# 打包输出（含 Linux ELF 与 Windows exe，用 build.cmd / build.sh / tools/wsl-build.sh 重新生成）
+/dist
