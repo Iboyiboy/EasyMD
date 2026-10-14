@@ -2192,3 +2192,170 @@ mod link_navigation_tests {
         app.apply_ops(ctx);
     }
 }
+
+#[cfg(test)]
+mod drag_select_scroll_tests {
+    use super::*;
+
+    fn run_frame(ctx: &egui::Context, app: &mut App, events: Vec<egui::Event>) -> f32 {
+        let mut input = egui::RawInput::default();
+        input.screen_rect = Some(egui::Rect::from_min_size(
+            egui::pos2(0.0, 0.0),
+            egui::vec2(900.0, 600.0),
+        ));
+        input.events = events;
+        let mut full = ctx.run_ui(input, |ui| app.draw(ui));
+        full.textures_delta.clear();
+        // 编辑区第一行文字的屏幕 y：视图下滚时它会往上移，用来判断有没有滚动
+        let mut top = f32::MAX;
+        for clipped in &full.shapes {
+            collect_top(&clipped.shape, &mut top);
+        }
+        app.apply_ops(ctx);
+        top
+    }
+
+    /// 编辑区正文那个「很高的」文本块（整篇文档是一个 galley）的屏幕 y。
+    /// 视图往下滚时它会往上移。（工具栏的文字是单行，靠高度就能排除掉。）
+    fn collect_top(shape: &egui::Shape, top: &mut f32) {
+        match shape {
+            egui::Shape::Text(t) => {
+                if t.pos.x < 400.0 && t.galley.size().y > 200.0 {
+                    *top = if *top == f32::MAX {
+                        t.pos.y
+                    } else {
+                        (*top).min(t.pos.y)
+                    };
+                }
+            }
+            egui::Shape::Vec(v) => {
+                for s in v {
+                    collect_top(s, top);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn long_doc(dir: &std::path::Path) -> PathBuf {
+        let mut text = String::from("# 长文档\n\n");
+        for i in 1..=80 {
+            text.push_str(&format!("第 {i} 行：用来撑开编辑器高度的正文内容。\n"));
+        }
+        let p = dir.join("long.md");
+        std::fs::write(&p, text).unwrap();
+        p
+    }
+
+    /// 在编辑器里按下并拖动；返回 (按下后的首行 y, 拖动后的首行 y, 按下后的选区终点, 拖动后的选区终点)。
+    /// 全部用「相对变化」做断言，避免依赖具体字体度量（Windows 与 Linux 的字面宽度不同）。
+    fn drag_from_to(
+        ctx: &egui::Context,
+        app: &mut App,
+        doc: &PathBuf,
+        xs: f32,
+        start_y: f32,
+        targets: &[f32],
+    ) -> (f32, f32, usize, usize) {
+        let id = egui::Id::new(("easmd-editor", doc));
+        let sel_end = |ctx: &egui::Context| {
+            egui::TextEdit::load_state(ctx, id)
+                .and_then(|s| s.cursor.char_range())
+                .map(|r| r.primary.index.0)
+                .unwrap_or(0)
+        };
+        let start = egui::pos2(xs, start_y);
+        run_frame(ctx, app, vec![egui::Event::PointerMoved(start)]);
+        let top_at_press = run_frame(
+            ctx,
+            app,
+            vec![egui::Event::PointerButton {
+                pos: start,
+                button: egui::PointerButton::Primary,
+                pressed: true,
+                modifiers: Default::default(),
+            }],
+        );
+        let sel_at_press = sel_end(ctx);
+        let mut top = top_at_press;
+        for y in targets {
+            top = run_frame(ctx, app, vec![egui::Event::PointerMoved(egui::pos2(xs, *y))]);
+        }
+        let sel_after = sel_end(ctx);
+        run_frame(
+            ctx,
+            app,
+            vec![egui::Event::PointerButton {
+                pos: egui::pos2(xs, *targets.last().unwrap_or(&start_y)),
+                button: egui::PointerButton::Primary,
+                pressed: false,
+                modifiers: Default::default(),
+            }],
+        );
+        (top_at_press, top, sel_at_press, sel_after)
+    }
+
+    fn edit_mode_app(dir: &std::path::Path, main: &PathBuf) -> (egui::Context, App) {
+        let ctx = egui::Context::default();
+        let mut cfg = AppConfig::default();
+        cfg.watch_files = false;
+        cfg.autosave = false;
+        cfg.show_sidebar = false;
+        cfg.mode = ViewMode::Edit;
+        cfg.last_folder = Some(dir.to_path_buf());
+        cfg.open_file = Some(main.clone());
+        let mut app = App::from_ctx(&ctx, cfg, None);
+        app.config_path = dir.join("cfg.json");
+        run_frame(&ctx, &mut app, vec![]);
+        run_frame(&ctx, &mut app, vec![]);
+        (ctx, app)
+    }
+
+    /// 编辑模式下拖拽选择：指针越过可视区域时视图必须跟着滚，
+    /// 否则选区虽然在增长却看不见，长文档没法一次选完。
+    #[test]
+    fn drag_select_autoscrolls_past_the_viewport() {
+        let dir = std::env::temp_dir().join(format!("easymd-drag-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let main = long_doc(&dir);
+        let (ctx, mut app) = edit_mode_app(&dir, &main);
+
+        // 拖到窗口下方（视口之外）
+        let targets: Vec<f32> = (1..=6).map(|i| 600.0 + i as f32 * 40.0).collect();
+        let (top0, top, sel0, sel_end) =
+            drag_from_to(&ctx, &mut app, &main, 60.0, 300.0, &targets);
+        println!("拖出视口: 首行 y {top0:.1} → {top:.1}，选区 {sel0} → {sel_end}");
+
+        assert!(
+            top < top0 - 20.0,
+            "指针拖到视口下方时视图应当滚动（内容上移），实际 {top0:.1} → {top:.1}"
+        );
+        assert!(
+            sel_end > sel0 + 50,
+            "滚动过程中选区应继续增长，实际 {sel0} → {sel_end}"
+        );
+    }
+
+    /// 视口内拖动不应该触发自动滚动（否则正常选词会乱跳）。
+    #[test]
+    fn drag_inside_viewport_does_not_autoscroll() {
+        let dir = std::env::temp_dir().join(format!("easymd-drag-in-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let main = long_doc(&dir);
+        let (ctx, mut app) = edit_mode_app(&dir, &main);
+
+        let targets: Vec<f32> = (1..=6).map(|i| 300.0 + i as f32 * 30.0).collect();
+        let (top0, top, sel0, sel_end) =
+            drag_from_to(&ctx, &mut app, &main, 60.0, 300.0, &targets);
+        println!("视口内拖动: 首行 y {top0:.1} → {top:.1}，选区 {sel0} → {sel_end}");
+
+        assert!(
+            (top - top0).abs() < 1.0,
+            "视口内拖动不应滚动视图，实际 {top0:.1} → {top:.1}"
+        );
+        assert!(
+            sel_end > sel0,
+            "视口内拖动仍应正常选区，实际 {sel0} → {sel_end}"
+        );
+    }
+}

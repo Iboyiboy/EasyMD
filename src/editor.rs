@@ -352,6 +352,32 @@ pub fn show(
         resp.response.widget_info(|| {
             egui::WidgetInfo::text_edit(true, doc.text.as_str(), doc.name(), "编辑 Markdown 内容")
         });
+
+        // 拖拽选择时越过可视区域 → 持续滚动。
+        //
+        // egui 的 TextEdit 只在「光标被键盘或程序移动」时才 `scroll_to_rect`；
+        // 鼠标拖到视野外时（`ui.scroll_to_rect` 也不会真正滚动这个外层的 ScrollArea），
+        // 选区虽然在增长却看不见，长文档就没法一次选完。
+        if resp.response.is_pointer_button_down_on() {
+            if let Some(p) = ui.ctx().input(|i| i.pointer.latest_pos()) {
+                let view = ui.clip_rect();
+                const EDGE: f32 = 28.0; // 距离上下边缘多少像素开始自动滚动
+                let over = if p.y < view.top() + EDGE {
+                    p.y - (view.top() + EDGE)
+                } else if p.y > view.bottom() - EDGE {
+                    p.y - (view.bottom() - EDGE)
+                } else {
+                    0.0
+                };
+                if over.abs() > 0.5 {
+                    // 越界越多滚得越快，但有上限，避免一帧跳很远
+                    let step = (over * 0.5).clamp(-60.0, 60.0);
+                    ui.scroll_with_delta(egui::vec2(0.0, -step));
+                    // 指针不动时也要继续滚，所以必须主动请求重绘
+                    ui.ctx().request_repaint();
+                }
+            }
+        }
     });
 
     // ---- 联动信息 ----
