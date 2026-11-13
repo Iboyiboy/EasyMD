@@ -386,6 +386,24 @@ impl List {
             self.has_list_begun = true;
         }
 
+        // ===== 本地修改（EasyMD）：列表栈为空时不再 panic =====
+        // 上游这里直接 `unreachable!()`。但「收到列表项事件、却没有对应的列表开始事件」
+        // 是真实会发生的情况：
+        //   1. `blockquote()` 用 `self.event()`（而不是 `process_event()`）渲染引用块内的
+        //      事件，于是引用块里列表项的 `Start(Item)` 置上的 `is_list_item` 标志**不会被
+        //      消费**，泄漏到外层；外层紧接着的 `process_event()` 会带着这个标志调用
+        //      `item_list_wrapping()`，把引用块**之后**的外层事件吞进一个子列表里渲染，
+        //      整个事件流就此错位。（已在 `pulldown.rs` 的 `blockquote()` 里堵住，
+        //      这里再兜一层底。）
+        //   2. `show()` 按视口切片渲染（`skip(first_event_index)`），切片起点可能落在
+        //      列表中间，被跳过的 `Start(List)` 不会补回来。
+        // 这两种情况下按「最外层项目符号」画即可，不该让整个程序 abort。
+        if self.items.is_empty() {
+            self.items.push(ListLevel {
+                current_number: None,
+            });
+        }
+
         let len = self.items.len();
         if let Some(item) = self.items.last_mut() {
             ui.label(" ".repeat((len - 1) * options.indentation_spaces));

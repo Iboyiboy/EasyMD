@@ -454,6 +454,18 @@ impl CommonMarkViewerInternal {
         ui: &mut Ui,
     ) {
         if self.is_blockquote {
+            // ===== 本地修改（EasyMD）：引用块内的列表不得把 is_list_item 泄漏到外层 =====
+            // 下面渲染引用块内容用的是 `self.event()` 而不是 `self.process_event()`，
+            // 所以引用块里列表项的 `Start(Item)` 会把 `self.is_list_item` 置为 true，
+            // 而消费这个标志的 `item_list_wrapping()` 只在 `process_event()` 里被调用
+            // —— 标志就泄漏到了外层。外层紧接着为「引用块的 Start 事件」调用
+            // `process_event()`，于是 `item_list_wrapping()` 拿着这个残留标志去
+            // `delayed_events_list_item()` 吞掉引用块**之后**的外层事件（遇到
+            // `Start(List)` 就返回），事件流随之错位，最终在某个 `Start(Item)` 上
+            // 撞进 `List::start_item()` 的空栈分支（上游是 `unreachable!()`，直接 panic）。
+            // 这里在进出引用块时保存/恢复该标志，堵住泄漏；引用块**内部**的渲染行为不变。
+            let saved_is_list_item = self.is_list_item;
+
             let mut collected_events = delayed_events(events, |tag| {
                 matches!(tag, pulldown_cmark::TagEnd::BlockQuote(_))
             });
@@ -485,6 +497,9 @@ impl CommonMarkViewerInternal {
 
             self.line.try_insert_end(ui);
             self.is_blockquote = false;
+
+            // 恢复外层标志，避免引用块内的列表影响引用块之后的渲染（见本函数开头说明）
+            self.is_list_item = saved_is_list_item;
         }
     }
 

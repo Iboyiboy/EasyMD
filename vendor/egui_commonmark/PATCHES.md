@@ -114,3 +114,47 @@ EasyMD 的「编辑模式下点预览正文 → 编辑器光标跳到对应块�
 3. `event_text` 按开关选择 `ui.label` 或 `Label::new(..).sense(Sense::click())`，
    并在 `resp.clicked()` 时记录 `src_span.start`。
 4. `src/lib.rs` 的 `CommonMarkViewer` 加 `text_clicks` 字段与 builder，并透传给内部 `show`。
+
+---
+
+## 改动四：修复「引用块内含列表」触发的 panic（`src/parsers/pulldown.rs` + `src/lib.rs`）
+
+**症状**：打开某些 Markdown 后整个程序 abort：
+
+```
+thread 'main' panicked at vendor/egui_commonmark/src/lib.rs:402:13:
+internal error: entered unreachable code
+```
+
+**触发条件**：文档中**先出现「引用块里含列表」**（例如 `> - 甲`），并且其后还有足够多的内容。
+实测一个 16 行的最小块单独打开不崩，前面接上另一篇文档的前 177 个块也不崩，
+两者**合起来**必崩——所以是跨块的解析状态被污染，而不是某个孤立语法。
+
+**根因**（上游缺陷，三处叠加）：
+
+1. `blockquote()` 渲染引用块内的子事件时用的是 **`self.event()`**，而不是 `self.process_event()`。
+   而消费 `is_list_item` 标志的 `item_list_wrapping()` **只在 `process_event()` 里调用** ——
+   于是引用块内 `Start(Item)` 置上的 `is_list_item` **永远不会被消费**，泄漏到外层。
+2. 外层紧接着为「引用块的 `Start` 事件」执行 `process_event()`，其中的 `item_list_wrapping()`
+   带着这个残留标志调用 `delayed_events_list_item()`，把引用块**之后**的外层事件吞进一个子列表里渲染
+   （该函数遇到 `Start(List)` 会**提前返回并把该事件包含进结果**），事件流由此错位。
+3. 错位后，某个 `Start(Item)` 到达时 `List::items` 已经是**空栈**，撞上上游的
+   `unreachable!()` → `abort()`。
+
+**改法**（防御 + 堵源头，两层）：
+
+- `parsers/pulldown.rs` / `blockquote()`：进出引用块时**保存/恢复** `self.is_list_item`，堵住泄漏。
+  引用块**内部**的渲染行为完全不变（列表项在引用块里本来就不走 `horizontal_wrapped`）。
+- `lib.rs` / `List::start_item()`：去掉崩溃路径 —— 空栈时补一个
+  `ListLevel { current_number: None }`，按最外层项目符号画。
+  这一层兜底同时覆盖另一条路径：`show()` 的**视口切片**
+  （`skip(first_event_index)`，切片起点可能落在列表中间，而被跳过的 `Start(List)` 不会补回来）。
+
+## 升级上游版本时的做法（改动四）
+
+1. `src/parsers/pulldown.rs` 的 `fn blockquote`：函数体开头存 `let saved_is_list_item = self.is_list_item;`，
+   结尾（`self.is_blockquote = false;` 之后）恢复 `self.is_list_item = saved_is_list_item;`。
+   若新版已把引用块也改走 `process_event()`，则本改动不再需要（届时删掉即可）。
+2. `src/lib.rs` 的 `List::start_item`：把 `else { unreachable!() }` 之前补上
+   `if self.items.is_empty() { self.items.push(ListLevel { current_number: None }); }`。
+3. 回归：`cargo test`（本副本当前 51 项全过），再打开任一含「引用块 + 列表」的文档确认真不崩。
