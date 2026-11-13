@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! EasyMD —— 超轻量化的本地 Markdown 知识库阅读与管理工具。
 //!
 //! 用法：

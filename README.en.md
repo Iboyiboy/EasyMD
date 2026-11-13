@@ -197,4 +197,11 @@ docs/screenshots/    UI screenshots
 
 ## License
 
-MIT
+**GNU General Public License v3.0 (GPL-3.0-only)** · Copyright (C) 2026 mc <whoismc@163.com>
+
+You are free to use, modify and redistribute this program; but **works based on it must be released under the same license**, keeping the copyright notice and the author attribution intact.
+
+- Full terms: [LICENSE](LICENSE)
+- Additional attribution terms (GPLv3 section 7(b)) and third-party component licenses: [NOTICE](NOTICE)
+
+> Note: earlier snapshots of this repository (and the binaries in GitHub Release v0.1.0) were published under MIT — that grant cannot be revoked for copies already obtained; GPL-3.0 applies to the current and future versions.

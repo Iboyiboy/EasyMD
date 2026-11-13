@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 文档仓库目录树：按需加载（懒加载）、排序、过滤、扁平化供虚拟列表渲染。
 
 use std::collections::HashSet;

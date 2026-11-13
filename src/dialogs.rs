@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 对话框：新建、重命名、删除确认、消息提示、关于、快捷键说明。
 
 use std::path::PathBuf;

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! dlltool 替代实现（仅 Windows + GNU 工具链、且未安装 MinGW-w64 binutils 时需要）。
 //!
 //! 背景：

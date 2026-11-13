@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 通用小控件：提示条、分段控件、分隔条拖动、带高亮的文本、设置项布局等。
 
 use std::time::{Duration, Instant};

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 自定义 `easymd://` 资源加载器。
 //!
 //! 为什么需要它：Markdown 里的图片几乎都写成相对路径（`![](images/a.png)`），

@@ -197,4 +197,11 @@ docs/screenshots/    界面截图
 
 ## 许可
 
-MIT
+**GNU 通用公共许可证 v3.0（GPL-3.0-only）** · Copyright (C) 2026 mc <whoismc@163.com>
+
+你可以自由使用、修改和分发本程序；但**基于它修改后的作品必须以同一许可开源**，并保留版权声明与作者署名。
+
+- 完整条款：[LICENSE](LICENSE)
+- 附加署名要求（GPLv3 第 7(b) 条）与第三方组件许可：[NOTICE](NOTICE)
+
+> 说明：本仓库先前的快照（以及 GitHub Release v0.1.0 中的二进制）按 MIT 发布——已发出的授权对已获得副本不可撤回；GPL-3.0 适用于本仓库当前及以后的版本。

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 主题系统：内置多套阅读主题，支持自定义背景色 / 文字色 / 强调色与背景图片。
 
 use egui::{Color32, CornerRadius, Stroke};

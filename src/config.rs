@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 配置持久化：记住上次打开的文件夹、视图模式、主题、字体、缩放、滚动位置等。
 
 use std::collections::HashMap;

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 mc <whoismc@163.com>
+# This file is part of EasyMD; see LICENSE and NOTICE for the full terms.
 # EasyMD 构建脚本（Linux / macOS / Windows 上的 Git Bash）
 #
 # Windows + GNU 工具链且未安装 MinGW-w64 时，会自动构建并使用

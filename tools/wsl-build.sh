@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 mc <whoismc@163.com>
+# This file is part of EasyMD; see LICENSE and NOTICE for the full terms.
 # 在 WSL 里构建 Linux 版 EasyMD。
 #
 # 用法（在 Windows 的 Git Bash / CMD 里）：

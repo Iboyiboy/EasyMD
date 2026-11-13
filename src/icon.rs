@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 // 程序图标：一份绘制代码同时供「窗口图标」（运行时，见 `main.rs`）和
 // 「exe 文件图标」（构建时，见 `build.rs`）使用，保证两者永远一致。
 //

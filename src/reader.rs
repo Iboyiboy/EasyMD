@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 右侧阅读面板：Markdown 渲染、标题锚点跳转、本地链接、图片、滚动位置记忆。
 
 use egui_commonmark::{CommonMarkCache, CommonMarkViewer};

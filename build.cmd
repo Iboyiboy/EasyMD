@@ -1,4 +1,7 @@
 @echo off
+rem SPDX-License-Identifier: GPL-3.0-only
+rem Copyright (C) 2026 mc <whoismc@163.com>
+rem This file is part of EasyMD; see LICENSE and NOTICE for the full terms.
 rem EasyMD 构建脚本（Windows）
 rem
 rem 说明：如果本机已安装 MSYS2 / MinGW-w64（PATH 中能找到 dlltool 与 as），

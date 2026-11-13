@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 字体系统：
 //! - 后台线程枚举系统字体（fontdb），不阻塞启动；
 //! - 按需从字体文件加载并安装到 egui，中文/emoji 回退自动补齐；

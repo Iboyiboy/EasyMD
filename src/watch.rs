@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 仓库文件监听：外部改动（编辑器、同步工具等）时自动刷新目录树与当前文档。
 //! 使用 debounce 合并密集事件，避免频繁刷新。
 

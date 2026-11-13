@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 mc <whoismc@163.com>
+// This file is part of EasyMD <https://github.com/Iboyiboy/EasyMD>;
+// see LICENSE and NOTICE for the full terms.
+
 //! 右侧编辑面板：等宽编辑、格式化插入、光标定位、Tab 缩进。
 
 use egui::{FontId, RichText, Ui};
