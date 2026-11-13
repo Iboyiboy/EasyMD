@@ -195,6 +195,14 @@ tools/dlltool-shim/  dlltool shim for Windows GNU toolchains without MinGW
 docs/screenshots/    UI screenshots
 ```
 
+## Contributing
+
+Issues and pull requests are welcome. **Your first pull request requires signing the
+[Contributor License Agreement](CLA.md)** — you keep the copyright in your contribution while
+allowing it to be distributed under other licenses as well (including commercial terms), which is
+what makes a GPL + commercial dual-licensing model possible. See
+[CONTRIBUTING.en.md](CONTRIBUTING.en.md) for the workflow and conventions.
+
 ## License
 
 **GNU General Public License v3.0 (GPL-3.0-only)** · Copyright (C) 2026 mc <whoismc@163.com>

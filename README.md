@@ -195,6 +195,10 @@ tools/dlltool-shim/  Windows GNU 工具链缺 MinGW 时的 dlltool 替身
 docs/screenshots/    界面截图
 ```
 
+## 贡献
+
+欢迎 issue 与 PR。**首次提交 PR 需要签署[贡献者许可协议（CLA）](CLA.md)**（[中文译文](CLA.zh-CN.md)）——你保留自己贡献的版权，同时授权本项目在 GPL 之外按其他许可（含商业许可）分发。开发约定与提交流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 ## 许可
 
 **GNU 通用公共许可证 v3.0（GPL-3.0-only）** · Copyright (C) 2026 mc <whoismc@163.com>

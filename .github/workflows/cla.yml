@@ -1,0 +1,43 @@
+# 贡献者许可协议（CLA）自动签署
+#
+# 使用 contributor-assistant/github-action：该仓库已于 2026-03 归档（只读、不再维护），
+# 但 v2.6.1 依然可用。由于本工作流运行在 pull_request_target 上并持有写权限，这里按最佳
+# 实践固定到 v2.6.1 的 commit SHA（归档之后该 SHA 不会变化），而不是使用可变 tag。
+#
+# 签名数据存放在本仓库的 cla-signatures 分支（该分支已预先创建，请勿对其开启保护规则），
+# 因此不需要额外的 PAT，用内置 GITHUB_TOKEN 即可。
+# 若想改用托管服务（在 cla-assistant.io 安装 App 的方式），删除本文件即可。
+
+name: CLA Assistant
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  CLAAssistant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CLA Assistant
+        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
+        uses: contributor-assistant/github-action@ca4a40a7d1004f18d9960b404b97e5f30a505a08  # v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path-to-document: 'https://github.com/Iboyiboy/EasyMD/blob/main/CLA.md'
+          path-to-signatures: 'signatures/version1/cla.json'
+          branch: 'cla-signatures'
+          allowlist: 'Iboyiboy,dependabot[bot],github-actions[bot]'
+          lock-pullrequest-aftermerge: true
+          custom-notsigned-prcomment: |
+            <br/>感谢你的贡献！合并前请先阅读并签署[贡献者许可协议]($pathToCLADocument)：你保留自己贡献的版权，同时授权维护者在其他许可（含商业许可）下分发你的贡献。
+            <br/>Thanks for your contribution! Please read and sign our [Contributor License Agreement]($pathToCLADocument) before this pull request can be merged.
+            <br/>签署方式 / How to sign — 在下面评论 / post this comment:
